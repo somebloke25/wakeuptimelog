@@ -13,7 +13,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
       min-height: 100vh;
       padding: 20px;
     }
@@ -28,7 +28,7 @@
     }
 
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
       color: white;
       padding: 30px;
       text-align: center;
@@ -57,7 +57,7 @@
     }
 
     .target-section h2 {
-      color: #667eea;
+      color: #0891b2;
       margin-bottom: 15px;
       font-size: 1.3em;
     }
@@ -80,7 +80,7 @@
 
     .target-input-group button {
       padding: 12px 24px;
-      background: #667eea;
+      background: #0891b2;
       color: white;
       border: none;
       border-radius: 8px;
@@ -91,7 +91,7 @@
     }
 
     .target-input-group button:hover {
-      background: #5568d3;
+      background: #0e7490;
     }
 
     .current-target {
@@ -101,7 +101,7 @@
     }
 
     .current-target strong {
-      color: #667eea;
+      color: #0891b2;
     }
 
     .month-navigation {
@@ -116,7 +116,7 @@
 
     .month-navigation button {
       padding: 10px 20px;
-      background: #667eea;
+      background: #0891b2;
       color: white;
       border: none;
       border-radius: 8px;
@@ -127,7 +127,7 @@
     }
 
     .month-navigation button:hover {
-      background: #5568d3;
+      background: #0e7490;
     }
 
     .month-navigation button:disabled {
@@ -136,7 +136,7 @@
     }
 
     .month-navigation h2 {
-      color: #667eea;
+      color: #0891b2;
       font-size: 1.5em;
     }
 
@@ -150,7 +150,7 @@
     .calendar-header {
       text-align: center;
       font-weight: 600;
-      color: #667eea;
+      color: #0891b2;
       padding: 10px;
       background: #f8f9ff;
       border-radius: 8px;
@@ -170,8 +170,8 @@
     }
 
     .calendar-day:hover {
-      border-color: #667eea;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      border-color: #0891b2;
+      box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);
     }
 
     .calendar-day.other-month {
@@ -185,13 +185,13 @@
     }
 
     .calendar-day.today {
-      border-color: #667eea;
-      background: #f8f9ff;
+      border-color: #0891b2;
+      background: #f0fdfa;
       font-weight: 600;
     }
 
     .calendar-day.has-time {
-      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      background: linear-gradient(135deg, #06b6d415 0%, #0891b215 100%);
     }
 
     .calendar-day.on-target {
@@ -211,7 +211,7 @@
 
     .day-time {
       font-size: 0.9em;
-      color: #667eea;
+      color: #0891b2;
       font-weight: 600;
       margin-top: 5px;
     }
@@ -243,7 +243,7 @@
     }
 
     .modal-content h3 {
-      color: #667eea;
+      color: #0891b2;
       margin-bottom: 20px;
       font-size: 1.5em;
     }
@@ -274,12 +274,12 @@
     }
 
     .btn-save {
-      background: #667eea;
+      background: #0891b2;
       color: white;
     }
 
     .btn-save:hover {
-      background: #5568d3;
+      background: #0e7490;
     }
 
     .btn-delete {
@@ -308,7 +308,7 @@
     }
 
     .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
       color: white;
       padding: 20px;
       border-radius: 12px;
@@ -355,6 +355,66 @@
     .summary-section.positive {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
+
+    .print-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #0891b2;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(8, 145, 178, 0.4);
+      transition: all 0.3s;
+      z-index: 999;
+    }
+
+    .print-button:hover {
+      background: #0e7490;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(8, 145, 178, 0.5);
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .print-button {
+        display: none;
+      }
+
+      .target-input-group button {
+        display: none;
+      }
+
+      .month-navigation button {
+        display: none;
+      }
+
+      .modal {
+        display: none !important;
+      }
+
+      .container {
+        box-shadow: none;
+        max-width: 100%;
+      }
+
+      .calendar-day {
+        cursor: default;
+      }
+
+      .calendar-day:hover {
+        border-color: #e0e7ff;
+        box-shadow: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -387,6 +447,8 @@
       <div class="summary-section" id="summary"></div>
     </div>
   </div>
+
+  <button class="print-button" onclick="window.print()">🖨️ Print</button>
 
   <div class="modal" id="timeModal">
     <div class="modal-content">
@@ -736,4 +798,3 @@
   </script>
 </body>
 </html>
-
