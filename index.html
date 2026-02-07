@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wake Up Time Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .target-section {
+      background: #f8f9ff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 2px solid #e0e7ff;
+    }
+
+    .target-section h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+    }
+
+    .target-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .target-input-group input {
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .target-input-group button {
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .target-input-group button:hover {
+      background: #5568d3;
+    }
+
+    .current-target {
+      margin-top: 10px;
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .current-target strong {
+      color: #667eea;
+    }
+
+    .month-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9ff;
+      border-radius: 12px;
+    }
+
+    .month-navigation button {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .month-navigation button:hover {
+      background: #5568d3;
+    }
+
+    .month-navigation button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .month-navigation h2 {
+      color: #667eea;
+      font-size: 1.5em;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .calendar-header {
+      text-align: center;
+      font-weight: 600;
+      color: #667eea;
+      padding: 10px;
+      background: #f8f9ff;
+      border-radius: 8px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      border: 2px solid #e0e7ff;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: white;
+    }
+
+    .calendar-day:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .calendar-day.other-month {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .calendar-day.other-month:hover {
+      border-color: #e0e7ff;
+      box-shadow: none;
+    }
+
+    .calendar-day.today {
+      border-color: #667eea;
+      background: #f8f9ff;
+      font-weight: 600;
+    }
+
+    .calendar-day.has-time {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    }
+
+    .calendar-day.on-target {
+      background: linear-gradient(135deg, #10b98115 0%, #059669 15 100%);
+      border-color: #10b981;
+    }
+
+    .calendar-day.late {
+      background: linear-gradient(135deg, #ef444415 0%, #dc262615 100%);
+      border-color: #ef4444;
+    }
+
+    .day-number {
+      font-size: 1.2em;
+      color: #333;
+    }
+
+    .day-time {
+      font-size: 0.9em;
+      color: #667eea;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-content h3 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-save {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-save:hover {
+      background: #5568d3;
+    }
+
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #dc2626;
+    }
+
+    .btn-cancel {
+      background: #e5e7eb;
+      color: #333;
+    }
+
+    .btn-cancel:hover {
+      background: #d1d5db;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-card h4 {
+      font-size: 0.9em;
+      opacity: 0.9;
+      margin-bottom: 10px;
+    }
+
+    .stat-card .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+    }
+
+    .summary-section {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .summary-section h3 {
+      font-size: 1.3em;
+      margin-bottom: 15px;
+      opacity: 0.95;
+    }
+
+    .summary-section .summary-value {
+      font-size: 3em;
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .summary-section .summary-label {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .summary-section.positive {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>☀️ Wake Up Tracker</h1>
+      <p>Track your wake-up times and build better morning habits</p>
+    </div>
+
+    <div class="content">
+      <div class="target-section">
+        <h2>🎯 Target Wake-Up Time</h2>
+        <div class="target-input-group">
+          <input type="time" id="targetTime" placeholder="Set your target time">
+          <button onclick="setTarget()">Set Target</button>
+        </div>
+        <div class="current-target" id="currentTarget"></div>
+      </div>
+
+      <div class="month-navigation">
+        <button onclick="changeMonth(-1)">← Previous</button>
+        <h2 id="monthTitle"></h2>
+        <button onclick="changeMonth(1)" id="nextBtn">Next →</button>
+      </div>
+
+      <div class="calendar" id="calendar"></div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="summary-section" id="summary"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="timeModal">
+    <div class="modal-content">
+      <h3 id="modalTitle"></h3>
+      <input type="time" id="wakeTime" placeholder="Enter wake-up time">
+      <div class="modal-buttons">
+        <button class="btn-save" onclick="saveTime()">Save</button>
+        <button class="btn-delete" onclick="deleteTime()" id="deleteBtn">Delete</button>
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentDate = new Date();
+    let selectedDate = null;
+    let wakeupData = {};
+    let targetTime = null;
+
+    async function loadData() {
+      try {
+        const result = await window.storage.get('wakeup-data');
+        if (result && result.value) {
+          wakeupData = JSON.parse(result.value);
+        }
+      } catch (error) {
+        console.log('No existing data found');
+      }
+
+      try {
+        const targetResult = await window.storage.get('target-time');
+        if (targetResult && targetResult.value) {
+          targetTime = targetResult.value;
+          document.getElementById('targetTime').value = targetTime;
+          updateTargetDisplay();
+        }
+      } catch (error) {
+        console.log('No target time set');
+      }
+    }
+
+    async function saveData() {
+      try {
+        await window.storage.set('wakeup-data', JSON.stringify(wakeupData));
+      } catch (error) {
+        console.error('Failed to save data:', error);
+      }
+    }
+
+    async function saveTargetTime() {
+      try {
+        await window.storage.set('target-time', targetTime);
+      } catch (error) {
+        console.error('Failed to save target time:', error);
+      }
+    }
+
+    function setTarget() {
+      const input = document.getElementById('targetTime');
+      if (input.value) {
+        targetTime = input.value;
+        saveTargetTime();
+        updateTargetDisplay();
+        renderCalendar();
+      }
+    }
+
+    function updateTargetDisplay() {
+      const display = document.getElementById('currentTarget');
+      if (targetTime) {
+        display.innerHTML = `<strong>Current Target:</strong> ${formatTime(targetTime)}`;
+      } else {
+        display.innerHTML = '';
+      }
+    }
+
+    function formatTime(time) {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes} ${ampm}`;
+    }
+
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+      
+      document.getElementById('monthTitle').textContent = `${monthNames[month]} ${year}`;
+      
+      const today = new Date();
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = (year === today.getFullYear() && month >= today.getMonth());
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      
+      const calendar = document.getElementById('calendar');
+      calendar.innerHTML = '';
+      
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      days.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'calendar-header';
+        header.textContent = day;
+        calendar.appendChild(header);
+      });
+      
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      for (let i = startDay - 1; i >= 0; i--) {
+        const day = document.createElement('div');
+        day.className = 'calendar-day other-month';
+        day.innerHTML = `<div class="day-number">${prevMonthDays - i}</div>`;
+        calendar.appendChild(day);
+      }
+      
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = dateStr === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        if (isToday) {
+          dayElement.classList.add('today');
+        }
+        
+        let timeHTML = '';
+        if (wakeupData[dateStr]) {
+          dayElement.classList.add('has-time');
+          timeHTML = `<div class="day-time">${formatTime(wakeupData[dateStr])}</div>`;
+          
+          if (targetTime) {
+            const wakeMinutes = timeToMinutes(wakeupData[dateStr]);
+            const targetMinutes = timeToMinutes(targetTime);
+            
+            if (wakeMinutes <= targetMinutes) {
+              dayElement.classList.add('on-target');
+            } else {
+              dayElement.classList.add('late');
+            }
+          }
+        }
+        
+        dayElement.innerHTML = `<div class="day-number">${day}</div>${timeHTML}`;
+        dayElement.onclick = () => openModal(dateStr);
+        calendar.appendChild(dayElement);
+      }
+      
+      const remainingDays = 42 - (startDay + lastDay.getDate());
+      for (let day = 1; day <= remainingDays; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day other-month';
+        dayElement.innerHTML = `<div class="day-number">${day}</div>`;
+        calendar.appendChild(dayElement);
+      }
+      
+      renderStats();
+    }
+
+    function timeToMinutes(time) {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    }
+
+    function renderStats() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      const monthDates = [];
+      for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
+        monthDates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+      }
+      
+      const monthData = monthDates.filter(date => wakeupData[date]).map(date => wakeupData[date]);
+      
+      let statsHTML = '';
+      
+      if (monthData.length > 0) {
+        const avgMinutes = monthData.reduce((sum, time) => sum + timeToMinutes(time), 0) / monthData.length;
+        const avgHours = Math.floor(avgMinutes / 60);
+        const avgMins = Math.round(avgMinutes % 60);
+        
+        statsHTML += `
+          <div class="stat-card">
+            <h4>Days Logged</h4>
+            <div class="stat-value">${monthData.length}</div>
+          </div>
+          <div class="stat-card">
+            <h4>Average Wake Time</h4>
+            <div class="stat-value">${avgHours}:${String(avgMins).padStart(2, '0')}</div>
+          </div>
+        `;
+        
+        if (targetTime) {
+          const onTarget = monthData.filter(time => timeToMinutes(time) <= timeToMinutes(targetTime)).length;
+          const percentage = Math.round((onTarget / monthData.length) * 100);
+          
+          statsHTML += `
+            <div class="stat-card">
+              <h4>On Target</h4>
+              <div class="stat-value">${percentage}%</div>
+            </div>
+          `;
+        }
+      }
+      
+      document.getElementById('stats').innerHTML = statsHTML;
+      renderSummary();
+    }
+
+    function renderSummary() {
+      const summaryElement = document.getElementById('summary');
+      
+      if (!targetTime) {
+        summaryElement.innerHTML = '<h3>Set a target time to see your progress summary</h3>';
+        summaryElement.className = 'summary-section';
+        return;
+      }
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      const monthDates = [];
+      for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
+        monthDates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+      }
+      
+      const monthData = monthDates.filter(date => wakeupData[date]);
+      
+      if (monthData.length === 0) {
+        summaryElement.innerHTML = '<h3>No wake-up times logged this month</h3>';
+        summaryElement.className = 'summary-section';
+        return;
+      }
+
+      let totalMinutesOff = 0;
+      const targetMinutes = timeToMinutes(targetTime);
+      
+      monthData.forEach(date => {
+        const wakeMinutes = timeToMinutes(wakeupData[date]);
+        const difference = wakeMinutes - targetMinutes;
+        totalMinutesOff += difference;
+      });
+
+      const avgMinutesOff = Math.round(totalMinutesOff / monthData.length);
+      const absMinutes = Math.abs(avgMinutesOff);
+      const hours = Math.floor(absMinutes / 60);
+      const minutes = absMinutes % 60;
+      
+      let displayText = '';
+      if (hours > 0) {
+        displayText = `${hours}h ${minutes}m`;
+      } else {
+        displayText = `${minutes}m`;
+      }
+
+      let summaryHTML = '<h3>Average Performance vs Target</h3>';
+      
+      if (avgMinutesOff > 0) {
+        summaryElement.className = 'summary-section';
+        summaryHTML += `
+          <div class="summary-value">${displayText}</div>
+          <div class="summary-label">⏰ Behind Target (on average)</div>
+        `;
+      } else if (avgMinutesOff < 0) {
+        summaryElement.className = 'summary-section positive';
+        summaryHTML += `
+          <div class="summary-value">${displayText}</div>
+          <div class="summary-label">🎉 Ahead of Target (on average)</div>
+        `;
+      } else {
+        summaryElement.className = 'summary-section positive';
+        summaryHTML += `
+          <div class="summary-value">Perfect!</div>
+          <div class="summary-label">🎯 Exactly on target (on average)</div>
+        `;
+      }
+
+      summaryElement.innerHTML = summaryHTML;
+    }
+
+    function openModal(dateStr) {
+      selectedDate = dateStr;
+      const modal = document.getElementById('timeModal');
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      
+      document.getElementById('modalTitle').textContent = dateObj.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
+      document.getElementById('wakeTime').value = wakeupData[dateStr] || '';
+      document.getElementById('deleteBtn').style.display = wakeupData[dateStr] ? 'block' : 'none';
+      
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('timeModal').classList.remove('active');
+      selectedDate = null;
+    }
+
+    async function saveTime() {
+      const time = document.getElementById('wakeTime').value;
+      if (time && selectedDate) {
+        wakeupData[selectedDate] = time;
+        await saveData();
+        renderCalendar();
+        closeModal();
+      }
+    }
+
+    async function deleteTime() {
+      if (selectedDate && wakeupData[selectedDate]) {
+        delete wakeupData[selectedDate];
+        await saveData();
+        renderCalendar();
+        closeModal();
+      }
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('timeModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    async function init() {
+      await loadData();
+      renderCalendar();
+    }
+
+    init();
+  </script>
+</body>
+</html>
