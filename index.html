@@ -406,20 +406,20 @@
     let wakeupData = {};
     let targetTime = null;
 
-    async function loadData() {
+    function loadData() {
       try {
-        const result = await window.storage.get('wakeup-data');
-        if (result && result.value) {
-          wakeupData = JSON.parse(result.value);
+        const savedData = localStorage.getItem('wakeup-data');
+        if (savedData) {
+          wakeupData = JSON.parse(savedData);
         }
       } catch (error) {
         console.log('No existing data found');
       }
 
       try {
-        const targetResult = await window.storage.get('target-time');
-        if (targetResult && targetResult.value) {
-          targetTime = targetResult.value;
+        const savedTarget = localStorage.getItem('target-time');
+        if (savedTarget) {
+          targetTime = savedTarget;
           document.getElementById('targetTime').value = targetTime;
           updateTargetDisplay();
         }
@@ -428,17 +428,17 @@
       }
     }
 
-    async function saveData() {
+    function saveData() {
       try {
-        await window.storage.set('wakeup-data', JSON.stringify(wakeupData));
+        localStorage.setItem('wakeup-data', JSON.stringify(wakeupData));
       } catch (error) {
         console.error('Failed to save data:', error);
       }
     }
 
-    async function saveTargetTime() {
+    function saveTargetTime() {
       try {
-        await window.storage.set('target-time', targetTime);
+        localStorage.setItem('target-time', targetTime);
       } catch (error) {
         console.error('Failed to save target time:', error);
       }
@@ -701,20 +701,20 @@
       selectedDate = null;
     }
 
-    async function saveTime() {
+    function saveTime() {
       const time = document.getElementById('wakeTime').value;
       if (time && selectedDate) {
         wakeupData[selectedDate] = time;
-        await saveData();
+        saveData();
         renderCalendar();
         closeModal();
       }
     }
 
-    async function deleteTime() {
+    function deleteTime() {
       if (selectedDate && wakeupData[selectedDate]) {
         delete wakeupData[selectedDate];
-        await saveData();
+        saveData();
         renderCalendar();
         closeModal();
       }
@@ -727,8 +727,8 @@
       }
     }
 
-    async function init() {
-      await loadData();
+    function init() {
+      loadData();
       renderCalendar();
     }
 
@@ -736,3 +736,4 @@
   </script>
 </body>
 </html>
+
